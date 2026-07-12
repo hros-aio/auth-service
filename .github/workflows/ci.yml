@@ -36,9 +36,21 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Checkout Code
+      # Check out auth-service into admin-module/auth-svc so that
+      # link:../../api-factory/... resolves correctly relative to it.
+      - name: Checkout auth-service
         uses: actions/checkout@v4
         with:
+          path: admin-module/auth-svc
+          persist-credentials: false
+
+      # Check out the shared api-factory at the path the link: overrides expect:
+      # admin-module/auth-svc → ../../api-factory = api-factory
+      - name: Checkout api-factory (shared libraries)
+        uses: actions/checkout@v4
+        with:
+          repository: hros-aio/apis-factory
+          path: api-factory
           persist-credentials: false
 
       - name: Setup Node.js
@@ -51,17 +63,29 @@ jobs:
         with:
           version: 9
 
+      - name: Build shared libraries
+        working-directory: api-factory
+        run: |
+          npm install -g pnpm
+          pnpm install --frozen-lockfile
+          pnpm run build --filter="@new-hros/libs-core" --filter="@new-hros/libs-sql" --filter="@new-hros/libs-apis"
+
       - name: Install Dependencies
+        working-directory: admin-module/auth-svc
         run: pnpm install --frozen-lockfile
 
       - name: Code Formatting Check
+        working-directory: admin-module/auth-svc
         run: pnpm run format:check
 
       - name: Code Linting
+        working-directory: admin-module/auth-svc
         run: pnpm run lint
 
       - name: Run Unit Tests
+        working-directory: admin-module/auth-svc
         run: pnpm run test:cov
 
       - name: Run E2E Tests
+        working-directory: admin-module/auth-svc
         run: pnpm run test:e2e
