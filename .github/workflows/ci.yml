@@ -62,7 +62,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 11
+          version: 11.2.2
 
       - name: Install Dependencies
         working-directory: admin-module/auth-svc
