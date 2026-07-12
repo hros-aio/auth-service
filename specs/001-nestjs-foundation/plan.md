@@ -10,7 +10,7 @@ Implement a production-ready architectural foundation for the NestJS microservic
 
 ## Technical Context
 
-**Language/Version**: TypeScript (v5.x+) on Node.js (v20+)
+**Language/Version**: TypeScript (v5.x+) on Node.js (v22+)
 
 **Primary Dependencies**: NestJS (v10+), class-validator, class-transformer, js-yaml, dotenv
 

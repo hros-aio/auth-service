@@ -4,7 +4,7 @@ This document defines scenarios to validate that the NestJS foundation is correc
 
 ## Prerequisites
 
-- **Node.js**: v20+
+- **Node.js**: v22+
 - **pnpm**: v9+
 - **Docker & Docker Compose** (for PostgreSQL and Redis)
 
