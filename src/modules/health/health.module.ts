@@ -1,14 +1,13 @@
 import { Module, OnModuleInit } from '@nestjs/common';
+import { HealthModule as LibsHealthModule } from '@new-hros/libs-apis';
+import { HealthService } from '@new-hros/libs-core';
 import { SqlHealthService, SqlModule } from '@new-hros/libs-sql';
 
-import { HealthController } from './health.controller';
-import { HealthService } from './health.service';
 import { RedisHealthIndicator } from './redis-health.indicator';
 
 @Module({
-  imports: [SqlModule],
-  providers: [HealthService, RedisHealthIndicator],
-  controllers: [HealthController],
+  imports: [SqlModule, LibsHealthModule],
+  providers: [RedisHealthIndicator],
 })
 export class HealthModule implements OnModuleInit {
   constructor(

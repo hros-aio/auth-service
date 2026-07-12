@@ -20,5 +20,9 @@ module.exports = {
     '^@nestjs/common(.*)$': '<rootDir>/../node_modules/@nestjs/common$1',
     '^@nestjs/typeorm(.*)$': '<rootDir>/../node_modules/@nestjs/typeorm$1',
     '^typeorm(.*)$': '<rootDir>/../node_modules/typeorm$1',
+    '^@new-hros/libs-core$': '/home/ren0503/new-hros/api-factory/libs/libs-core/dist/index.js',
+    '^@new-hros/libs-core/(.*)$': '/home/ren0503/new-hros/api-factory/libs/libs-core/dist/$1',
+    '^@new-hros/libs-apis$': '/home/ren0503/new-hros/api-factory/libs/libs-apis/dist/index.js',
+    '^@new-hros/libs-apis/(.*)$': '/home/ren0503/new-hros/api-factory/libs/libs-apis/dist/$1',
   },
 };

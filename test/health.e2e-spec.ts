@@ -1,9 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { HealthService } from '@new-hros/libs-core';
 import * as request from 'supertest';
 
 import { AppModule } from '../src/app.module';
-import { HealthService } from '../src/modules/health/health.service';
 
 describe('HealthCheck Controller (e2e)', () => {
   let app: INestApplication;
