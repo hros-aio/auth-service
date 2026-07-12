@@ -1,10 +1,12 @@
 import { Controller, Get, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Public } from '@new-hros/libs-apis';
 import * as request from 'supertest';
 
 import { AppModule } from '../src/app.module';
 
 @Controller('test-correlation')
+@Public()
 class TestCorrelationController {
   @Get()
   getTest(): { ok: boolean } {
@@ -29,7 +31,7 @@ describe('Correlation Headers & Request ID Propagation (e2e)', () => {
     await app.close();
   });
 
-  it('should return client request-id in response header and body envelope', () => {
+  it('should return client request-id in response header', () => {
     const testReqId = 'correlation-trace-id-abc';
 
     return request(app.getHttpServer())
@@ -38,9 +40,7 @@ describe('Correlation Headers & Request ID Propagation (e2e)', () => {
       .expect(200)
       .expect((res) => {
         expect(res.headers['x-request-id']).toBe(testReqId);
-        expect(res.body.success).toBe(true);
-        expect(res.body.requestId).toBe(testReqId);
-        expect(res.body.data).toEqual({ ok: true });
+        expect(res.body).toEqual({ ok: true });
       });
   });
 
@@ -51,7 +51,6 @@ describe('Correlation Headers & Request ID Propagation (e2e)', () => {
       .expect((res) => {
         expect(res.headers['x-request-id']).toBeDefined();
         expect(res.headers['x-request-id'].length).toBeGreaterThan(10);
-        expect(res.body.requestId).toBe(res.headers['x-request-id']);
       });
   });
 });

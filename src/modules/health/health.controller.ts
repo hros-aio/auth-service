@@ -1,11 +1,13 @@
 import { Controller, Get, Res, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Public } from '@new-hros/libs-apis';
 import { Response } from 'express';
 
 import { HealthService } from './health.service';
 
 @ApiTags('Health')
 @Controller('health')
+@Public()
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
