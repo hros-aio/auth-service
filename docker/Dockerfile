@@ -3,8 +3,14 @@ FROM node:20-alpine AS development
 
 WORKDIR /usr/src/app
 
-COPY package.json pnpm-lock.yaml* ./
-RUN npm install -g pnpm && pnpm install
+# Copy workspace configuration and package manifests first
+COPY pnpm-workspace.yaml* ./
+COPY package.json pnpm-lock.yaml ./
+
+# Copy shared-library sources so workspace links resolve within the build context
+COPY ../../api-factory/libs ./api-factory/libs
+
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 COPY . .
 
@@ -18,10 +24,19 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
-COPY package.json pnpm-lock.yaml* ./
-RUN npm install -g pnpm && pnpm install --prod
+# Add a dedicated non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY pnpm-workspace.yaml* ./
+COPY package.json pnpm-lock.yaml ./
+COPY ../../api-factory/libs ./api-factory/libs
+
+RUN npm install -g pnpm && pnpm install --prod --frozen-lockfile
 
 COPY --from=development /usr/src/app/dist ./dist
+
+# Switch to non-root user before starting the process
+USER appuser
 
 EXPOSE 3000
 

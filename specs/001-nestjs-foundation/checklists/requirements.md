@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-07-12
-**Feature**: [spec.md](file:///home/ren0503/new-hros/admin-module/auth-svc/specs/001-nestjs-foundation/spec.md)
+**Feature**: [spec.md](../spec.md)
 
 ## Content Quality
 

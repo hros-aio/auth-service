@@ -1,6 +1,6 @@
 # Common API Response Envelope Contract
 
-All standard HTTP JSON responses returned by the backend MUST follow this structure, which is automatically handled by the global `ResponseInterceptor` from `@hrms/libs-apis`.
+All standard HTTP JSON responses returned by the backend MUST follow this structure, which is automatically handled by the global `ResponseInterceptor` from `@new-hros/libs-apis`.
 
 ## Success Envelope
 
@@ -22,7 +22,7 @@ All standard HTTP JSON responses returned by the backend MUST follow this struct
 
 ## Error Envelope
 
-When exceptions occur, the global `ExceptionFilter` from `@hrms/libs-apis` intercepts them and returns a standardized error response.
+When exceptions occur, the global `ExceptionFilter` from `@new-hros/libs-apis` intercepts them and returns a standardized error response.
 
 - **Status Code**: `4xx` or `5xx`
 

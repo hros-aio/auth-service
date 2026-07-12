@@ -15,9 +15,9 @@ module.exports = {
         'ci',
         'chore',
         'build',
-        'revert'
+        'revert',
       ]
     ],
-    'scope-case': [2, 'always', 'kebab-case']
+    'scope-case': [2, 'always', 'kebab-case'],
   }
 };

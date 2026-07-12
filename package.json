@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Enterprise HRMS Authentication Microservice",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

@@ -2,11 +2,11 @@
 
 ## Shared Database Infrastructure
 
-This project is a technical foundation. It does not introduce business-specific tables. All future entities MUST inherit from the shared `@hrms/libs-sql` base entity structures.
+This project is a technical foundation. It does not introduce business-specific tables. All future entities MUST inherit from the shared `@new-hros/libs-sql` base entity structures.
 
 ### BaseEntity (Shared Infrastructure)
 
-Every entity class MUST extend `BaseEntity` from `@hrms/libs-sql`.
+Every entity class MUST extend `BaseEntity` from `@new-hros/libs-sql`.
 
 | Column | Type | Nullable | Description |
 |---|---|---|---|

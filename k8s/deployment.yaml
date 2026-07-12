@@ -15,11 +15,21 @@ spec:
       labels:
         app: hrms-auth-service
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
       containers:
         - name: hrms-auth-service
-          image: hrms-auth-service:latest
+          image: hrms-auth-service:1.0.0
           ports:
             - containerPort: 3000
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           envFrom:
             - configMapRef:
                 name: hrms-auth-config

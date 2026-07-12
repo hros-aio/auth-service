@@ -6,9 +6,9 @@ app:
 database:
   host: "localhost"
   port: 5432
-  username: "postgres"
-  password: "postgres"
-  name: "auth"
+  username: "hrms_user"
+  password: "hrms_password"
+  name: "hrms_auth_db"
 
 redis:
   host: "localhost"
@@ -20,4 +20,4 @@ kafka:
 
 jwt:
   publicKey: "test-public-key"
-  privateKey: "test-private-key"
+  # privateKey is intentionally omitted; load via JWT_PRIVATE_KEY environment variable or secrets manager

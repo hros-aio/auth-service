@@ -1,6 +1,6 @@
 # Implementation Plan: Build Enterprise NestJS Foundation
 
-**Branch**: `001-build-base-source` | **Date**: 2026-07-12 | **Spec**: [spec.md](file:///home/ren0503/new-hros/admin-module/auth-svc/specs/001-nestjs-foundation/spec.md)
+**Branch**: `001-build-base-source` | **Date**: 2026-07-12 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `specs/001-nestjs-foundation/spec.md`
 
@@ -63,7 +63,8 @@ src/
 └── app.module.ts        # App root module
 
 test/
-├── app.e2e-spec.ts      # E2E baseline
+├── health.e2e-spec.ts   # E2E health endpoint tests
+├── correlation.e2e-spec.ts  # E2E correlation/context tests
 └── jest-e2e.json        # Jest E2E configuration
 ```
 

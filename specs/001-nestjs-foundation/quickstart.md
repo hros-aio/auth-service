@@ -44,7 +44,7 @@ Expected output:
 - NestJS application starts.
 - DB migration runs successfully.
 - Caching client registers namespaces.
-- JSON formatted log entries appear in stdout.
+- JSON-formatted log entries appear in stdout.
 
 ### 5. Health Check Verification
 Query the health check endpoint:

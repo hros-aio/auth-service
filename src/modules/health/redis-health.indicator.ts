@@ -22,8 +22,19 @@ export class RedisHealthIndicator implements HealthIndicator {
 
     try {
       await client.ping();
-      await client.quit();
-      return { status: 'up' };
+      // Health result is determined: return 'up' before cleanup so quit() cannot affect it
+      const result: { status: 'up' | 'down'; details?: Record<string, unknown> } = {
+        status: 'up',
+      };
+      // Cleanup: disconnect client asynchronously; errors here do not change health status
+      client.quit().catch(() => {
+        try {
+          client.disconnect();
+        } catch (_) {
+          // Ignore
+        }
+      });
+      return result;
     } catch (err: unknown) {
       try {
         client.disconnect();

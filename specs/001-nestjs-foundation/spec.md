@@ -58,7 +58,7 @@ As a QA engineer, I want Jest test configurations (unit, integration, E2E) and G
 
 - **Database/Cache Unreachable on Startup**: If the database or cache is offline, the application MUST fail to boot gracefully, outputting a clear error log, and exit with a non-zero status code (fail-fast behavior).
 - **Missing or Invalid Configuration**: If environment variables or YAML configs fail validation schema checks on startup, the application MUST immediately log the validation error details and exit.
-- **Async Context Fallback**: If logs or services access the async storage context outside of an active request lifecyle (e.g. during application bootstrap or cron executions), it MUST fall back to a default value without throwing exceptions.
+- **Async Context Fallback**: If logs or services access the async storage context outside of an active request lifecycle (e.g. during application bootstrap or cron executions), it MUST fall back to a default value without throwing exceptions.
 
 ## Requirements *(mandatory)*
 
@@ -88,6 +88,6 @@ No business-specific entities are introduced in the foundation. Database infrast
 
 ## Assumptions
 
-- **Shared Libraries Availablity**: The packages `@hrms/libs-core`, `@hrms/libs-sql`, and `@hrms/libs-apis` are available and successfully resolved in the workspace dependencies.
+- **Shared Libraries Availability**: The packages `@hrms/libs-core`, `@hrms/libs-sql`, and `@hrms/libs-apis` are available and successfully resolved in the workspace dependencies.
 - **Docker Daemon**: The development and production environments have access to Docker for building images.
 - **Asymmetric Encryption**: The auth service handles key issuance; the foundation only requires the public key for token verification.

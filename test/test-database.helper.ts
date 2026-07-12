@@ -15,11 +15,12 @@ export class TestDatabaseHelper {
     }
   }
 
-  async runMigrations(): Promise<void> {
+  async synchronizeSchema(): Promise<void> {
     if (!this.dataSource.isInitialized) {
       await this.dataSource.initialize();
     }
-    // Synchronize schema or run migrations depending on source config
+    // Drops and recreates all schema objects (destructive). For actual migration
+    // execution use dataSource.runMigrations() instead.
     await this.dataSource.synchronize(true);
   }
 }

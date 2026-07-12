@@ -38,4 +38,8 @@ async function bootstrap(): Promise<void> {
   logger.log(`Application is running on: http://localhost:${port}/docs`);
 }
 
-bootstrap();
+bootstrap().catch((err: unknown) => {
+  const logger = new Logger('Bootstrap');
+  logger.error('Fatal startup error', err instanceof Error ? err.stack : String(err));
+  process.exit(1);
+});

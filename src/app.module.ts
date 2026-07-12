@@ -9,12 +9,15 @@ import { MetricsModule } from './modules/metrics/metrics.module';
 @Module({
   imports: [
     ConfigurationModule.register({ configDir: 'config' }),
-    CoreModule.forRoot({
-      cache: {
-        store: 'redis',
-        host: process.env.REDIS_HOST || 'localhost',
-        port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT, 10) : 6379,
-      },
+    CoreModule.forRootAsync({
+      inject: [ConfigurationService],
+      useFactory: (config: ConfigurationService) => ({
+        cache: {
+          store: 'redis',
+          host: config.get<string>('redis.host') ?? 'localhost',
+          port: config.get<number>('redis.port') ?? 6379,
+        },
+      }),
     }),
     ApisModule.forRootAsync({
       inject: [ConfigurationService],
