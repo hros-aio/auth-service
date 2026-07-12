@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ApisModule } from '@new-hros/libs-apis';
 import { ConfigurationModule, ConfigurationService, CoreModule } from '@new-hros/libs-core';
 import { SqlModule } from '@new-hros/libs-sql';
@@ -6,22 +6,9 @@ import { SqlModule } from '@new-hros/libs-sql';
 import { HealthModule } from './modules/health/health.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 
-@Global()
-@Module({
-  providers: [
-    {
-      provide: Number,
-      useValue: 5000,
-    },
-  ],
-  exports: [Number],
-})
-export class GlobalNumberModule {}
-
 @Module({
   imports: [
     ConfigurationModule.register({ configDir: 'config' }),
-    GlobalNumberModule,
     CoreModule.forRoot({
       cache: {
         store: 'redis',
