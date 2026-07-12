@@ -44,8 +44,9 @@ jobs:
           path: admin-module/auth-svc
           persist-credentials: false
 
-      # Check out the shared api-factory at the path the link: overrides expect:
-      # admin-module/auth-svc → ../../api-factory = api-factory
+      # Check out the shared api-factory at the path the link: overrides expect.
+      # api-factory uses npm (package-lock.json) and commits its dist/ output,
+      # so no install or build step is required — the checkout is sufficient.
       - name: Checkout api-factory (shared libraries)
         uses: actions/checkout@v4
         with:
@@ -62,13 +63,6 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 9
-
-      - name: Build shared libraries
-        working-directory: api-factory
-        run: |
-          npm install -g pnpm
-          pnpm install --frozen-lockfile
-          pnpm run build --filter="@new-hros/libs-core" --filter="@new-hros/libs-sql" --filter="@new-hros/libs-apis"
 
       - name: Install Dependencies
         working-directory: admin-module/auth-svc
