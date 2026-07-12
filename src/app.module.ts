@@ -4,7 +4,6 @@ import { ApisModule } from '@new-hros/libs-apis';
 import { CoreModule } from '@new-hros/libs-core';
 import { SqlModule } from '@new-hros/libs-sql';
 
-import { CacheModule } from './modules/cache/cache.module';
 import { ConfigurationModule } from './modules/config/config.module';
 import { HealthModule } from './modules/health/health.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
@@ -40,7 +39,6 @@ export class GlobalNumberModule {}
         },
       }),
     }),
-    CacheModule,
     HealthModule,
     MetricsModule,
     SqlModule.forRootAsync({
