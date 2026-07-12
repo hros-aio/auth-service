@@ -1,10 +1,8 @@
 import { Global, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ApisModule } from '@new-hros/libs-apis';
-import { CoreModule } from '@new-hros/libs-core';
+import { ConfigurationModule, ConfigurationService, CoreModule } from '@new-hros/libs-core';
 import { SqlModule } from '@new-hros/libs-sql';
 
-import { ConfigurationModule } from './modules/config/config.module';
 import { HealthModule } from './modules/health/health.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 
@@ -22,7 +20,7 @@ export class GlobalNumberModule {}
 
 @Module({
   imports: [
-    ConfigurationModule,
+    ConfigurationModule.register({ configDir: 'config' }),
     GlobalNumberModule,
     CoreModule.forRoot({
       cache: {
@@ -32,24 +30,24 @@ export class GlobalNumberModule {}
       },
     }),
     ApisModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      inject: [ConfigurationService],
+      useFactory: (config: ConfigurationService) => ({
         auth: {
-          publicKey: config.get<string>('JWT_PUBLIC_KEY'),
+          publicKey: config.get<string>('jwt.publicKey'),
         },
       }),
     }),
     HealthModule,
     MetricsModule,
     SqlModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      inject: [ConfigurationService],
+      useFactory: (config: ConfigurationService) => ({
         type: 'postgres' as const,
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        username: config.get<string>('DB_USERNAME'),
-        password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_NAME'),
+        host: config.get<string>('database.host'),
+        port: config.get<number>('database.port'),
+        username: config.get<string>('database.username'),
+        password: config.get<string>('database.password'),
+        database: config.get<string>('database.name'),
         synchronize: false,
         autoLoadEntities: true,
       }),

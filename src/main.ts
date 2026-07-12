@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { setupSwagger, setupVersioning, createCorsOptions } from '@new-hros/libs-apis';
+import { ConfigurationService } from '@new-hros/libs-core';
 
 import { AppModule } from './app.module';
 
@@ -12,8 +12,8 @@ async function bootstrap(): Promise<void> {
 
   const logger = new Logger('Bootstrap');
 
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT', 3000);
+  const configService = app.get(ConfigurationService);
+  const port = configService.get<number>('app.port') ?? 3000;
 
   // Configure CORS
   app.enableCors(createCorsOptions());

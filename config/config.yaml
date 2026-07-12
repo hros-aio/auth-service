@@ -1,9 +1,23 @@
-PORT: 3000
-DB_HOST: "localhost"
-DB_PORT: 5432
-DB_USERNAME: "postgres"
-DB_PASSWORD: "postgres"
-DB_NAME: "auth"
-REDIS_HOST: "localhost"
-REDIS_PORT: 6379
-JWT_PUBLIC_KEY: "test-public-key"
+app:
+  name: "hrms-auth-service"
+  port: 3000
+  env: "development"
+
+database:
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "postgres"
+  name: "auth"
+
+redis:
+  host: "localhost"
+  port: 6379
+
+kafka:
+  brokers:
+    - "localhost:9092"
+
+jwt:
+  publicKey: "test-public-key"
+  privateKey: "test-private-key"
