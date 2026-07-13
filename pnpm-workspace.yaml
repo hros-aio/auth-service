@@ -1,4 +1,6 @@
-packages: []
+packages:
+  - '.'
+  - '../../api-factory/libs/*'
 
 allowBuilds:
   '@nestjs/core': false
