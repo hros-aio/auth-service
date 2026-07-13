@@ -1,0 +1,77 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: hrms_user
+          POSTGRES_PASSWORD: hrms_password
+          POSTGRES_DB: hrms_auth_db_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      # Check out auth-service into admin-module/auth-svc so that
+      # link:../../api-factory/... resolves correctly relative to it.
+      - name: Checkout auth-service
+        uses: actions/checkout@v4
+        with:
+          path: admin-module/auth-svc
+          persist-credentials: false
+
+      # Check out the shared api-factory at the path the link: overrides expect.
+      # api-factory uses npm (package-lock.json) and commits its dist/ output,
+      # so no install or build step is required — the checkout is sufficient.
+      - name: Checkout api-factory (shared libraries)
+        uses: actions/checkout@v4
+        with:
+          repository: hros-aio/apis-factory
+          path: api-factory
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 11.2.2
+
+      - name: Install Dependencies
+        working-directory: admin-module/auth-svc
+        run: pnpm install --frozen-lockfile
+
+      - name: Code Formatting Check
+        working-directory: admin-module/auth-svc
+        run: pnpm run format
+
+      - name: Code Linting
+        working-directory: admin-module/auth-svc
+        run: pnpm run lint
