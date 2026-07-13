@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@new-hros/libs-apis': link:../../api-factory/libs/libs-apis
-  '@new-hros/libs-core': link:../../api-factory/libs/libs-core
-  '@new-hros/libs-sql': link:../../api-factory/libs/libs-sql
-
 importers:
 
   .:
