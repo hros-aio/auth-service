@@ -1,7 +1,14 @@
+process.env.JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY || 'mock-private-key';
+if (!process.env.CI) {
+  process.env.DATABASE_PORT = process.env.DATABASE_PORT || '5433';
+  process.env.REDIS_PORT = process.env.REDIS_PORT || '6380';
+} else {
+  process.env.DATABASE_NAME = process.env.DATABASE_NAME || 'hrms_auth_db_test';
+}
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthService } from '@new-hros/libs-core';
-import * as request from 'supertest';
+import request, { Response } from 'supertest';
 
 import { AppModule } from '../src/app.module';
 
@@ -41,7 +48,7 @@ describe('HealthCheck Controller (e2e)', () => {
     return request(app.getHttpServer())
       .get('/health')
       .expect(200)
-      .expect((res) => {
+      .expect((res: Response) => {
         expect(res.body).toEqual({
           status: 'ok',
           info: {
@@ -69,7 +76,7 @@ describe('HealthCheck Controller (e2e)', () => {
     return request(app.getHttpServer())
       .get('/health')
       .expect(503)
-      .expect((res) => {
+      .expect((res: Response) => {
         expect(res.body).toEqual({
           status: 'error',
           info: {

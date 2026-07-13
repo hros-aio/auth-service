@@ -1,7 +1,14 @@
+process.env.JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY || 'mock-private-key';
+if (!process.env.CI) {
+  process.env.DATABASE_PORT = process.env.DATABASE_PORT || '5433';
+  process.env.REDIS_PORT = process.env.REDIS_PORT || '6380';
+} else {
+  process.env.DATABASE_NAME = process.env.DATABASE_NAME || 'hrms_auth_db_test';
+}
 import { Controller, Get, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Public } from '@new-hros/libs-apis';
-import * as request from 'supertest';
+import request, { Response } from 'supertest';
 
 import { AppModule } from '../src/app.module';
 
@@ -38,7 +45,7 @@ describe('Correlation Headers & Request ID Propagation (e2e)', () => {
       .get('/test-correlation')
       .set('x-request-id', testReqId)
       .expect(200)
-      .expect((res) => {
+      .expect((res: Response) => {
         expect(res.headers['x-request-id']).toBe(testReqId);
         expect(res.body).toEqual({ ok: true });
       });
@@ -48,7 +55,7 @@ describe('Correlation Headers & Request ID Propagation (e2e)', () => {
     return request(app.getHttpServer())
       .get('/test-correlation')
       .expect(200)
-      .expect((res) => {
+      .expect((res: Response) => {
         expect(res.headers['x-request-id']).toBeDefined();
         expect(res.headers['x-request-id'].length).toBeGreaterThan(10);
       });
