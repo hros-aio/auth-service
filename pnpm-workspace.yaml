@@ -1,7 +1,7 @@
 packages: []
 
 allowBuilds:
-  '@nestjs/core': set this to true or false
+  '@nestjs/core': false
 overrides:
   '@new-hros/libs-apis': link:../../api-factory/libs/libs-apis
   '@new-hros/libs-core': link:../../api-factory/libs/libs-core
