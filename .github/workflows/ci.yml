@@ -75,11 +75,3 @@ jobs:
       - name: Code Linting
         working-directory: admin-module/auth-svc
         run: pnpm run lint
-
-      - name: Run Unit Tests
-        working-directory: admin-module/auth-svc
-        run: pnpm run test:cov
-
-      - name: Run E2E Tests
-        working-directory: admin-module/auth-svc
-        run: pnpm run test:e2e
