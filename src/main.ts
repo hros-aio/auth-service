@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { setupSwagger, setupVersioning, createCorsOptions } from '@new-hros/libs-apis';
+import { createCorsOptions, setupSwagger, setupVersioning } from '@new-hros/libs-apis';
 import { ConfigurationService } from '@new-hros/libs-core';
 
 import { AppModule } from './app.module';

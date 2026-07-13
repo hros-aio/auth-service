@@ -12,7 +12,14 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@nestjs/common": ["node_modules/@nestjs/common"],
+      "@nestjs/core": ["node_modules/@nestjs/core"],
+      "@nestjs/typeorm": ["node_modules/@nestjs/typeorm"],
+      "typeorm": ["node_modules/typeorm"],
+      "@new-hros/libs-core": ["node_modules/@new-hros/libs-core"],
+      "@new-hros/libs-apis": ["node_modules/@new-hros/libs-apis"],
+      "@new-hros/libs-sql": ["node_modules/@new-hros/libs-sql"]
     },
     "incremental": true,
     "skipLibCheck": true,
