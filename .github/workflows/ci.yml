@@ -66,6 +66,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: hros-aio/apis-factory
+          ref: draft
           path: api-factory
           persist-credentials: false
 
