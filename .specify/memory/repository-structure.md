@@ -21,7 +21,7 @@ Pattern: `hrms-<domain>-service`, kebab-case, one repository per bounded context
 
 | Repository | Domain |
 |---|---|
-| `hrms-auth-service` | Authentication, token issuance, RBAC resolution |
+| `hrms-access-service` | Authentication, token issuance, RBAC resolution |
 | `hrms-setting-service` | System/tenant configuration |
 | `hrms-company-service` | Company/organization structure |
 | `hrms-department-service` | Departments |
@@ -36,10 +36,10 @@ New domains follow the same naming pattern and repository shape below.
 
 ## 3. Standard Repository Layout
 
-Each repository is one deployable NestJS service, but internally it is organized as a set of **NestJS modules** — the same `modules/<name>/` shape the monorepo used, just scoped to one service's bounded context instead of the whole system. `hrms-auth-service`, for example, is a single repository/deployment composed of several internal modules: `auth`, `users`, `roles`, `permissions`.
+Each repository is one deployable NestJS service, but internally it is organized as a set of **NestJS modules** — the same `modules/<name>/` shape the monorepo used, just scoped to one service's bounded context instead of the whole system. `hrms-access-service`, for example, is a single repository/deployment composed of several internal modules: `auth`, `users`, `roles`, `permissions`.
 
 ```
-hrms-auth-service/
+hrms-access-service/
 ├── src/
 │   ├── modules/
 │   │   ├── auth/                       # login, token issuance/refresh
@@ -190,7 +190,7 @@ Service-level (not module-level) folders:
 
 Two different rules apply depending on whether the boundary is inside one repository or between repositories.
 
-### 4.1 Between internal modules of the same service (e.g. `users` ↔ `roles` ↔ `permissions` inside `hrms-auth-service`)
+### 4.1 Between internal modules of the same service (e.g. `users` ↔ `roles` ↔ `permissions` inside `hrms-access-service`)
 
 Same rule the monorepo used for domain modules, just scoped inside one repository:
 
@@ -206,7 +206,7 @@ This boundary is a network boundary, not a folder boundary, and the compiler can
 - **Synchronous, request/response**: a typed HTTP client calling the other service's versioned REST API, generated/validated against its published OpenAPI spec. No service reaches into another service's database.
 - **Asynchronous, event-driven**: Kafka producers/consumers (a service's `src/kafka/` folder) per `coding-conventions.md`'s Kafka naming rules, with the event schema treated as a versioned contract (see §5).
 
-Each service owns its own database/schema exclusively — including across its own internal modules (e.g. `hrms-auth-service`'s `users`, `roles`, and `permissions` modules share one database, but no other service ever queries it directly). No shared tables, no cross-service joins. This is what keeps independent CI/CD and independent deploys per repository safe.
+Each service owns its own database/schema exclusively — including across its own internal modules (e.g. `hrms-access-service`'s `users`, `roles`, and `permissions` modules share one database, but no other service ever queries it directly). No shared tables, no cross-service joins. This is what keeps independent CI/CD and independent deploys per repository safe.
 
 ## 5. Contracts Between Repositories
 
@@ -285,13 +285,13 @@ They are imported like any other package (`import { CacheManager } from '@hrms/l
 | `versioning.config` | API versioning setup |
 | `cors.config` | CORS policy |
 | `TenantContextMiddleware`, `RequestIdMiddleware` | Request-scoped middleware |
-| `JwtAuthGuard`, `PermissionGuard`, `@Roles()` | Auth/RBAC enforcement, verifying the RS256 JWT issued by `hrms-auth-service` |
+| `JwtAuthGuard`, `PermissionGuard`, `@Roles()` | Auth/RBAC enforcement, verifying the RS256 JWT issued by `hrms-access-service` |
 | `PaginationQueryDto`, `ApiResponseDto` | Common DTOs shared across every domain |
 | `ResponseInterceptor` | Global response-shaping interceptor |
 
 ## 9. File Naming Recap
 
-All file naming follows the table in `coding-conventions.md §2.1`, applied identically inside every internal module of every `hrms-*-service` repository: `kebab-case-name.<type-suffix>.ts`, with the type suffix matching its folder — e.g. `hrms-auth-service/src/modules/roles/entities/role.entity.ts`. Lint rule `unicorn/filename-case` plus a custom ESLint rule enforcing suffix-to-folder consistency runs in every repository's own CI pipeline.
+All file naming follows the table in `coding-conventions.md §2.1`, applied identically inside every internal module of every `hrms-*-service` repository: `kebab-case-name.<type-suffix>.ts`, with the type suffix matching its folder — e.g. `hrms-access-service/src/modules/roles/entities/role.entity.ts`. Lint rule `unicorn/filename-case` plus a custom ESLint rule enforcing suffix-to-folder consistency runs in every repository's own CI pipeline.
 
 ## 10. Dependency Direction
 

@@ -3,7 +3,7 @@ if (!process.env.CI) {
   process.env.DATABASE_PORT = process.env.DATABASE_PORT || '5433';
   process.env.REDIS_PORT = process.env.REDIS_PORT || '6380';
 } else {
-  process.env.DATABASE_NAME = process.env.DATABASE_NAME || 'hrms_auth_db_test';
+  process.env.DATABASE_NAME = process.env.DATABASE_NAME || 'hrms_access_db_test';
 }
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';

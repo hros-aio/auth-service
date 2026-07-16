@@ -3,24 +3,24 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: hrms-auth-postgres
+    container_name: hrms-access-postgres
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: hrms_user
       POSTGRES_PASSWORD: hrms_password
-      POSTGRES_DB: hrms_auth_db
+      POSTGRES_DB: hrms_access_db
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hrms_user -d hrms_auth_db"]
+      test: ["CMD-SHELL", "pg_isready -U hrms_user -d hrms_access_db"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: hrms-auth-redis
+    container_name: hrms-access-redis
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
