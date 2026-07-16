@@ -129,6 +129,37 @@ hrms-auth-service/
 └── README.md
 ```
 
+### Access Service Layout (`access-svc`)
+
+```text
+access-svc
+├── identity
+│   ├── users
+│   ├── credentials
+│   ├── sessions
+│   ├── invitations
+│   └── mfa
+│
+├── authorization
+│   ├── roles
+│   ├── permissions
+│   ├── policies
+│   ├── scopes
+│   └── decision-engine
+│
+├── approval
+│   ├── approval-chain
+│   ├── approval-stage
+│   ├── approver-rule
+│   ├── delegation
+│   └── approver-resolution
+│
+└── audit
+    ├── access-decisions
+    ├── permission-changes
+    └── approval-policy-changes
+```
+
 Not every service needs this many internal modules — `hrms-department-service` may reasonably be a single `department` module. The rule is: **split into internal modules along sub-domain boundaries within the service's bounded context**, the same judgment call the monorepo used for top-level domains, just applied one level deeper.
 
 | Folder (inside each module) | Contains | Never contains |

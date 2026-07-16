@@ -1,9 +1,11 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Public } from '@new-hros/libs-apis';
 import { Response } from 'express';
 
 @ApiTags('Metrics')
 @Controller('metrics')
+@Public()
 export class MetricsController {
   @Get()
   @ApiOperation({ summary: 'Get Prometheus formatted system metrics' })
