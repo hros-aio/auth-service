@@ -74,6 +74,14 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install dependencies in api-factory
+        working-directory: api-factory
+        run: npm ci
+
+      - name: Build shared libraries in api-factory
+        working-directory: api-factory
+        run: npm run build
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
