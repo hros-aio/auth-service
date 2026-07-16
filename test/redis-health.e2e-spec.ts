@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigurationService } from '@new-hros/libs-core';
+
 import { RedisHealthIndicator } from '../src/modules/health/redis-health.indicator';
 
 // Mock ioredis
@@ -34,7 +35,7 @@ describe('RedisHealthIndicator', () => {
     }).compile();
 
     indicator = module.get<RedisHealthIndicator>(RedisHealthIndicator);
-    
+
     mockPing.mockReset();
     mockQuit.mockReset();
     mockDisconnect.mockReset();

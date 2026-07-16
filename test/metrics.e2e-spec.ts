@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request, { Response } from 'supertest';
+
 import { AppModule } from '../src/app.module';
 
 describe('MetricsController (e2e)', () => {
