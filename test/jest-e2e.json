@@ -24,5 +24,12 @@
     "!src/main.ts",
     "!src/**/*.module.ts"
   ],
-  "coverageDirectory": "coverage-e2e"
+  "coverageDirectory": "coverage-e2e",
+  "coverageThreshold": {
+    "global": {
+      "statements": 90,
+      "functions": 90,
+      "branches": 85
+    }
+  }
 }

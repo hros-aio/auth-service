@@ -9,11 +9,25 @@ import { SqlModule } from '@new-hros/libs-sql';
 import { HealthModule } from './modules/health/health.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 
-// Load local .env file if available (Node.js 20.12+)
-if (typeof process.loadEnvFile === 'function') {
-  const envPath = path.resolve(process.cwd(), '.env');
-  if (fs.existsSync(envPath)) {
-    process.loadEnvFile(envPath);
+// Load local .env file if available
+const envPath = path.resolve(process.cwd(), '.env');
+if (fs.existsSync(envPath)) {
+  const content = fs.readFileSync(envPath, 'utf8');
+  const lines = content.split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const match = trimmed.match(/^([^=]+)=(.*)$/);
+    if (!match) continue;
+    const key = match[1].trim();
+    let val = match[2].trim();
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.substring(1, val.length - 1);
+      val = val.replace(/\\n/g, '\n');
+    }
+    if (process.env[key] === undefined) {
+      process.env[key] = val;
+    }
   }
 }
 
