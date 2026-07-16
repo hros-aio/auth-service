@@ -24,8 +24,8 @@ async function bootstrap(): Promise<void> {
   // Configure Swagger Documentation
   setupSwagger(app, {
     enabled: true,
-    title: 'HRMS Authentication Service',
-    description: 'API documentation for the HRMS Authentication Service',
+    title: 'HRMS Access Service',
+    description: 'API documentation for the HRMS Access Service',
     version: '1.0.0',
     path: 'docs',
     bearerAuth: true,

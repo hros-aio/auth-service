@@ -1,4 +1,4 @@
-# HRMS Authentication Service (Auth Service)
+# HRMS Access Service (Access Service)
 
 Enterprise-grade NestJS foundation for the Authentication and Authorization microservice.
 
@@ -46,7 +46,7 @@ DB_HOST: "localhost"
 DB_PORT: 5432
 DB_USERNAME: "postgres"
 DB_PASSWORD: "postgres"
-DB_NAME: "auth"
+DB_NAME: "access"
 REDIS_HOST: "localhost"
 REDIS_PORT: 6379
 JWT_PUBLIC_KEY: "test-public-key"

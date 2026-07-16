@@ -1,5 +1,5 @@
 {
-  "name": "hrms-auth-service",
+  "name": "hrms-access-service",
   "version": "1.0.0",
   "description": "Enterprise HRMS Authentication Microservice",
   "private": true,

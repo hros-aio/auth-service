@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hrms-auth-service
+  name: hrms-access-service
   namespace: hrms
   labels:
-    app: hrms-auth-service
+    app: hrms-access-service
 spec:
   ports:
     - port: 3000
       targetPort: 3000
       protocol: TCP
   selector:
-    app: hrms-auth-service
+    app: hrms-access-service
   type: ClusterIP
