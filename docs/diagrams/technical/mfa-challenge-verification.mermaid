@@ -1,0 +1,48 @@
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant FE as Web Frontend
+    participant API as MfaController
+    participant M as MfaApplicationService
+    participant R as Redis
+    participant DB as PostgreSQL
+    participant P as AuthenticationPolicyService
+    participant T as TokenService
+    participant A as Audit Platform
+
+    U->>FE: enter MFA code
+    FE->>API: POST /auth/mfa/challenges/{id}/verify
+    API->>M: verifyChallenge(id, code, trustedIp)
+    M->>R: atomically load challenge
+    alt missing, consumed, or expired
+        R-->>M: invalid
+        M->>A: mfa.login.failed(reason=challenge_expired)
+        M-->>API: AUTH_MFA_CHALLENGE_EXPIRED
+    else valid challenge
+        R-->>M: challenge
+        M->>DB: load user, method, settings
+        M->>P: verify same IP context and account eligibility
+        M->>M: verify TOTP or email OTP
+        alt incorrect code
+            M->>R: increment challenge attempts + global failures atomically
+            alt challenge attempt limit exceeded
+                M->>R: revoke challenge
+            end
+            M->>P: evaluate account lockout
+            alt global threshold reached
+                M->>DB: lock user, securityVersion++
+                M->>R: revoke all sessions
+            end
+            M->>A: mfa.login.failed
+            M-->>API: AUTH_MFA_INVALID_CODE
+        else correct code
+            M->>R: consume challenge atomically
+            M->>R: create full session
+            M->>R: add user-session index
+            M->>T: issue access and refresh tokens
+            T-->>M: tokens
+            M->>A: mfa.login.succeeded + login.succeeded
+            M-->>API: tokens
+        end
+    end
+    API-->>FE: result

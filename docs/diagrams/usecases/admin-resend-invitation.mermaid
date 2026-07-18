@@ -1,0 +1,12 @@
+flowchart TD
+    A([Admin opens User Management]) --> B[Select invited user]
+    B --> C[Click Resend invitation]
+    C --> D{Has permission and same tenant?}
+    D -- No --> E[Show permission denied]
+    D -- Yes --> F{User active and password not configured?}
+    F -- No --> G[Show resend not allowed]
+    F -- Yes --> H[Confirm resend]
+    H --> I[System revokes previous link]
+    I --> J[System creates and emails new link]
+    J --> K[Show success notification]
+    K --> L([Admin returns to user list])

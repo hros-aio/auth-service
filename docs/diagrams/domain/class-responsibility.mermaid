@@ -1,0 +1,99 @@
+classDiagram
+    direction LR
+
+    class AuthController
+    class InvitationController
+    class MfaController
+    class PasswordController
+    class AdminUserSecurityController
+    class AuthSettingsController
+    class EmployeeLifecycleConsumer
+    class TenantProvisioningConsumer
+
+    class LoginApplicationService {
+        +loginWithPassword(cmd)
+        +loginWithFirebase(cmd)
+        +verifyMfaChallenge(cmd)
+    }
+
+    class InvitationApplicationService {
+        +validateInvitation(query)
+        +acceptInvitation(cmd)
+        +resendInvitation(cmd)
+    }
+
+    class MfaApplicationService {
+        +beginEnrollment(cmd)
+        +verifyEnrollment(cmd)
+        +resetByAdmin(cmd)
+    }
+
+    class PasswordApplicationService {
+        +requestForgotPassword(cmd)
+        +verifyResetCode(cmd)
+        +setPasswordWithGrant(cmd)
+        +changePassword(cmd)
+        +setupViaFirebase(cmd)
+    }
+
+    class SessionApplicationService {
+        +logoutCurrent(cmd)
+        +logoutAll(cmd)
+        +forceLogout(cmd)
+        +validateSession(sessionId)
+    }
+
+    class ProvisioningApplicationService {
+        +bootstrapRootAdmin(event)
+        +provisionEmployeeUser(event)
+        +synchronizeEmployeeStatus(event)
+    }
+
+    class AuthenticationPolicyService {
+        +evaluateAccountStatus(user)
+        +evaluateIp(settings, ip)
+        +evaluateMfa(settings, user)
+        +evaluateLockout(counter)
+        +evaluateRestrictedSession(session, endpoint)
+    }
+
+    class CredentialService {
+        +hashPassword(raw)
+        +verifyPassword(raw, hash)
+        +validatePasswordPolicy(raw)
+    }
+
+    class TokenService {
+        +generateOpaqueToken()
+        +hashOpaqueToken(raw)
+        +issueAccessToken(session)
+    }
+
+    class AuditSanitizer {
+        +sanitize(metadata)
+        +assertNoSecrets(metadata)
+    }
+
+    AuthController --> LoginApplicationService
+    InvitationController --> InvitationApplicationService
+    MfaController --> MfaApplicationService
+    PasswordController --> PasswordApplicationService
+    AdminUserSecurityController --> SessionApplicationService
+    AdminUserSecurityController --> MfaApplicationService
+    AuthSettingsController --> AuthenticationPolicyService
+    EmployeeLifecycleConsumer --> ProvisioningApplicationService
+    TenantProvisioningConsumer --> ProvisioningApplicationService
+
+    LoginApplicationService --> AuthenticationPolicyService
+    LoginApplicationService --> CredentialService
+    LoginApplicationService --> SessionApplicationService
+    LoginApplicationService --> TokenService
+    InvitationApplicationService --> CredentialService
+    InvitationApplicationService --> TokenService
+    PasswordApplicationService --> CredentialService
+    PasswordApplicationService --> SessionApplicationService
+    ProvisioningApplicationService --> TokenService
+    ProvisioningApplicationService --> SessionApplicationService
+    AuditSanitizer ..> LoginApplicationService
+    AuditSanitizer ..> InvitationApplicationService
+    AuditSanitizer ..> MfaApplicationService

@@ -1,0 +1,10 @@
+flowchart TD
+    A([Admin opens user security actions]) --> B[Select Force logout]
+    B --> C[Optionally enter reason]
+    C --> D{Permission and tenant scope valid?}
+    D -- No --> E[Show permission denied]
+    D -- Yes --> F[Confirm action]
+    F --> G[System revokes every target session]
+    G --> H[Target is signed out on all devices]
+    H --> I[Admin sees revoked-session count]
+    I --> J([Audit record stored])

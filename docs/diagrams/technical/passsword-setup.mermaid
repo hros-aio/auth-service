@@ -1,0 +1,38 @@
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant FE as Web Frontend
+    participant API as PasswordController
+    participant P as PasswordApplicationService
+    participant R as Redis
+    participant DB as PostgreSQL
+    participant C as CredentialService
+    participant A as Audit Platform
+
+    U->>FE: submit new password
+    FE->>API: POST /auth/password/setup/firebase
+    API->>R: validate restricted session type and expiry
+    alt invalid or expired
+        R-->>API: invalid
+        API-->>FE: re-authenticate with Firebase
+    else valid restricted session
+        R-->>API: userId, tenantCode, securityVersion
+        API->>P: setupViaFirebase(userId, password)
+        P->>C: validate policy + hash password
+        C-->>P: Argon2id passwordHash
+        P->>DB: BEGIN
+        P->>DB: SELECT user FOR UPDATE
+        P->>DB: UPSERT Credential(ACTIVE)
+        P->>DB: revoke all PENDING invitations
+        P->>DB: User -> ACTIVE, securityVersion++
+        P->>DB: COMMIT
+        P->>R: revoke restricted and stale sessions
+        P->>A: password.setup.via.firebase.fallback
+        alt Restricted MFA requires enrollment
+            P->>R: create new restricted MFA-enrollment session
+            P-->>API: MFA_ENROLLMENT_REQUIRED
+        else MFA not required
+            P-->>API: setup complete, require fresh login
+        end
+        API-->>FE: next step
+    end

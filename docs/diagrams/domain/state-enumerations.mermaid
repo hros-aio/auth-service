@@ -1,0 +1,57 @@
+classDiagram
+    class UserStatus {
+        <<enumeration>>
+        INVITED
+        ACTIVE
+        LOCKED
+        DISABLED
+        ARCHIVED
+        PROVISIONING_PENDING
+    }
+
+    class UserType {
+        <<enumeration>>
+        ROOT_ADMIN
+        EMPLOYEE
+    }
+
+    class CredentialStatus {
+        <<enumeration>>
+        EMPTY
+        ACTIVE
+        RESET_REQUIRED
+    }
+
+    class InvitationStatus {
+        <<enumeration>>
+        PENDING
+        ACCEPTED
+        EXPIRED
+        REVOKED
+    }
+
+    class MfaStatus {
+        <<enumeration>>
+        PENDING
+        ACTIVE
+        DISABLED
+    }
+
+    class MfaType {
+        <<enumeration>>
+        TOTP
+        EMAIL_OTP
+    }
+
+    class IdentityProvider {
+        <<enumeration>>
+        FIREBASE
+    }
+
+    class SessionType {
+        <<enumeration>>
+        FULL
+        RESTRICTED_PASSWORD_SETUP
+        RESTRICTED_MFA_ENROLLMENT
+        PRIMARY_AUTH_PENDING_MFA
+    }

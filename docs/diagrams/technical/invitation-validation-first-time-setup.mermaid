@@ -1,0 +1,43 @@
+sequenceDiagram
+    autonumber
+    actor U as Invited User
+    participant FE as Web Frontend
+    participant API as InvitationController
+    participant S as InvitationApplicationService
+    participant DB as PostgreSQL
+    participant C as CredentialService
+    participant SS as SessionStore/Redis
+    participant A as Audit Platform
+
+    U->>FE: open /accept-invite?userId&token
+    FE->>API: POST /invitations/validate {userId, rawToken}
+    API->>S: validateInvitation()
+    S->>S: tokenHash = hash(rawToken)
+    S->>DB: find invitation by tenant + userId + tokenHash
+    alt invitation missing, revoked, accepted, expired, or user ineligible
+        DB-->>S: invalid state
+        S->>A: invitation.invalid.used (no token data)
+        S-->>API: generic contact-admin error
+        API-->>FE: AUTH_INVITATION_INVALID-class response
+        FE-->>U: link invalid, contact administrator
+    else valid PENDING invitation
+        DB-->>S: invitation + user
+        S-->>API: validation grant or validated context
+        API-->>FE: allow password setup screen
+        U->>FE: submit new password
+        FE->>API: POST /invitations/accept {userId, rawToken, password}
+        API->>S: acceptInvitation()
+        S->>DB: BEGIN
+        S->>DB: SELECT invitation FOR UPDATE by userId + tokenHash
+        S->>C: validate policy and Argon2id hash password
+        C-->>S: passwordHash
+        S->>DB: UPSERT Credential(ACTIVE)
+        S->>DB: Invitation -> ACCEPTED
+        S->>DB: User -> ACTIVE, securityVersion++
+        S->>DB: COMMIT
+        S->>SS: revoke any stale/restricted sessions
+        S->>A: invitation.accepted + password.setup.via.invitation
+        S-->>API: success
+        API-->>FE: onboarding completed
+        FE-->>U: redirect to login
+    end

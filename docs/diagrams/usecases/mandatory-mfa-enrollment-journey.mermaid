@@ -1,0 +1,24 @@
+flowchart TD
+    A([Primary authentication succeeds]) --> B{User already has active MFA?}
+    B -- Yes --> C[Complete MFA challenge]
+    C --> D{Challenge successful?}
+    D -- No --> E[Retry or restart login]
+    D -- Yes --> F[Receive full session]
+    B -- No --> G{Restricted MFA enabled or re-enrollment required?}
+    G -- No --> F
+    G -- Yes --> H[Receive restricted enrollment session]
+    H --> I[Choose TOTP or secondary email]
+    I --> J{TOTP selected?}
+    J -- Yes --> K[Scan QR code]
+    K --> L[Enter authenticator code]
+    J -- No --> M[Enter secondary email]
+    M --> N[Receive email OTP]
+    N --> O[Enter email OTP]
+    L --> P{Verification valid?}
+    O --> P
+    P -- No --> Q[Show error and retry]
+    Q --> I
+    P -- Yes --> R[MFA method activated]
+    R --> S[Continue login or sign in again]
+    S --> F
+    F --> T([Access HRMS])

@@ -1,0 +1,10 @@
+stateDiagram-v2
+    [*] --> PENDING: token issued
+    PENDING --> ACCEPTED: password setup succeeds
+    PENDING --> REVOKED: admin resend
+    PENDING --> REVOKED: Firebase fallback password setup
+    PENDING --> REVOKED: employee archived/admin action
+    PENDING --> EXPIRED: expiresAt elapsed
+    ACCEPTED --> [*]
+    REVOKED --> [*]
+    EXPIRED --> REVOKED: admin resend supersedes historical invite

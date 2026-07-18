@@ -1,0 +1,30 @@
+sequenceDiagram
+    autonumber
+    actor AD as Admin
+    participant FE as Admin Portal
+    participant API as AdminUserSecurityController
+    participant AZ as Authorization Domain
+    participant M as MfaApplicationService
+    participant DB as PostgreSQL
+    participant R as Redis
+    participant A as Audit Platform
+
+    AD->>FE: click Reset MFA
+    FE->>API: POST /admin/users/{targetId}/mfa/reset
+    API->>AZ: authorize(access.user.reset-mfa, target)
+    alt denied
+        AZ-->>API: deny
+        API-->>FE: AUTH_PERMISSION_DENIED
+    else allowed
+        AZ-->>API: allow
+        API->>M: resetByAdmin(actor,target)
+        M->>DB: BEGIN
+        M->>DB: disable all active/pending MFA methods
+        M->>DB: securityVersion++
+        M->>DB: set MFA_REENROLLMENT_REQUIRED according to tenant policy
+        M->>DB: COMMIT
+        M->>R: revoke all sessions and MFA challenges
+        M->>A: mfa.reset.by.admin(actor,target)
+        M-->>API: success
+        API-->>FE: reset completed
+    end

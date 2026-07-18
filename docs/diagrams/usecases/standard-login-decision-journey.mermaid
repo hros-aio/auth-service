@@ -1,0 +1,23 @@
+flowchart TD
+    A([User opens Login]) --> B[Enter tenant, email, password]
+    B --> C[Submit login]
+    C --> D{Credentials and account valid?}
+    D -- No --> E[Show generic login error]
+    E --> F{Account locked?}
+    F -- Yes --> G[Show locked-account guidance]
+    F -- No --> B
+    D -- Yes --> H{Source IP allowed?}
+    H -- No --> I[Show IP restriction message]
+    H -- Yes --> J{Active MFA method exists?}
+    J -- Yes --> K[Show MFA challenge]
+    K --> L[Enter MFA code]
+    L --> M{Code valid?}
+    M -- No --> N[Show invalid code / remaining attempts]
+    N --> L
+    M -- Yes --> O[Create full session]
+    J -- No --> P{Restricted MFA enabled?}
+    P -- Yes --> Q[Redirect to mandatory MFA enrollment]
+    Q --> R[Enroll and verify one MFA method]
+    R --> O
+    P -- No --> O
+    O --> S([Open HRMS dashboard])

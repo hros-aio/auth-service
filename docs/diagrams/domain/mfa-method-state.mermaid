@@ -1,0 +1,6 @@
+stateDiagram-v2
+    [*] --> PENDING: enrollment initiated
+    PENDING --> ACTIVE: first verification succeeds
+    PENDING --> DISABLED: enrollment cancelled/expired cleanup
+    ACTIVE --> DISABLED: user disables or admin resets
+    DISABLED --> PENDING: user re-enrolls

@@ -1,0 +1,99 @@
+classDiagram
+    direction LR
+
+    class Session {
+        +string sessionId
+        +string tenantCode
+        +uuid userId
+        +int securityVersion
+        +SessionType type
+        +string[] authMethods
+        +bool mfaSatisfied
+        +bool rememberMe
+        +string sourceIp
+        +string userAgent
+        +datetime createdAt
+        +datetime lastSeenAt
+        +datetime expiresAt
+        +isAllowed(endpoint)
+        +refreshIdleExpiry()
+    }
+
+    class UserSessionIndex {
+        +string key
+        +set~sessionId~ sessionIds
+        +add(sessionId)
+        +remove(sessionId)
+        +revokeAll()
+    }
+
+    class LoginFailureCounter {
+        +string tenantCode
+        +uuid userId nullable
+        +string normalizedEmail nullable
+        +string sourceIp
+        +int credentialFailures
+        +int mfaFailures
+        +int ipRestrictionFailures
+        +datetime windowStartedAt
+        +increment(type)
+        +weightedScore()
+        +reset()
+    }
+
+    class MfaChallenge {
+        +string challengeId
+        +uuid userId
+        +uuid mfaMethodId
+        +string codeHash nullable
+        +int attemptCount
+        +int maxAttempts
+        +datetime expiresAt
+        +bool consumed
+        +verify(code)
+    }
+
+    class PasswordResetCode {
+        +string requestId
+        +uuid userId
+        +ResetPurpose purpose
+        +string codeHash
+        +int attemptCount
+        +datetime expiresAt
+        +bool consumed
+    }
+
+    class PasswordResetGrant {
+        +string grantId
+        +uuid userId
+        +ResetPurpose purpose
+        +uuid requestedBy nullable
+        +datetime expiresAt
+        +bool consumed
+        +consume()
+    }
+
+    class MfaEnrollmentChallenge {
+        +string enrollmentId
+        +uuid userId
+        +MfaType type
+        +string encryptedPendingSecret nullable
+        +string codeHash nullable
+        +datetime expiresAt
+        +int attemptCount
+    }
+
+    class IdempotencyRecord {
+        +string eventId
+        +string consumerName
+        +string aggregateKey
+        +ProcessingStatus status
+        +datetime processedAt
+    }
+
+    Session "many" --> "1" UserSessionIndex : indexed by
+    LoginFailureCounter ..> Session : may trigger revocation
+    MfaChallenge ..> Session : creates full session after success
+    PasswordResetCode --> PasswordResetGrant : verification issues
+    PasswordResetGrant ..> Session : password change revokes
+    MfaEnrollmentChallenge ..> MfaMethod : activates

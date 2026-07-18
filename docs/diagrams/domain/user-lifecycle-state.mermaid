@@ -1,0 +1,16 @@
+stateDiagram-v2
+    [*] --> PROVISIONING_PENDING: employee-created received
+    PROVISIONING_PENDING --> INVITED: Firebase identity provisioned and employee active
+    PROVISIONING_PENDING --> DISABLED: employee inactive
+    INVITED --> ACTIVE: invitation accepted or Firebase password setup completed
+    ACTIVE --> LOCKED: lockout threshold reached
+    ACTIVE --> DISABLED: employee disabled
+    ACTIVE --> ARCHIVED: employee archived
+    INVITED --> DISABLED: employee disabled
+    INVITED --> ARCHIVED: employee archived
+    LOCKED --> ACTIVE: admin unlock
+    LOCKED --> DISABLED: employee disabled
+    LOCKED --> ARCHIVED: employee archived
+    DISABLED --> INVITED: employee reactivated; assumed new invitation
+    ARCHIVED --> INVITED: employee reactivated; assumed new invitation
+    ARCHIVED --> [*]: retention/deletion policy outside authentication scope

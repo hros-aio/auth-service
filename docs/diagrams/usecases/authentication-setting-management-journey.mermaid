@@ -1,0 +1,13 @@
+flowchart TD
+    A([Admin opens Authentication Settings]) --> B[View current tenant settings]
+    B --> C[Edit Restricted MFA, reset policy, lockout, or IP allowlist]
+    C --> D{Input valid?}
+    D -- No --> E[Show field-level validation]
+    E --> C
+    D -- Yes --> F[Save settings]
+    F --> G{Permission and tenant scope valid?}
+    G -- No --> H[Show permission denied]
+    G -- Yes --> I[Persist new settings]
+    I --> J[Invalidate settings cache]
+    J --> K[Write audit event]
+    K --> L([Show updated settings])

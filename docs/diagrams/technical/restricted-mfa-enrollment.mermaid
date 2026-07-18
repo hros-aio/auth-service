@@ -1,0 +1,45 @@
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant FE as Web Frontend
+    participant API as MfaController
+    participant M as MfaApplicationService
+    participant R as Redis
+    participant DB as PostgreSQL
+    participant E as Email Service
+    participant A as Audit Platform
+
+    Note over U,R: User has a restricted session that only permits MFA enrollment endpoints.
+
+    U->>FE: choose TOTP or secondary email
+    FE->>API: POST /mfa/enrollments
+    API->>R: validate restricted session and endpoint scope
+    R-->>API: valid
+    API->>M: beginEnrollment(type)
+    alt TOTP
+        M->>M: generate secret
+        M->>R: store encrypted pending secret + enrollment TTL
+        M-->>API: QR/otpauth URI shown once
+    else Email MFA
+        M->>M: generate OTP and hash
+        M->>R: store hashed OTP + pending email
+        M->>E: send verification OTP
+        M-->>API: masked destination
+    end
+    API-->>FE: enrollment challenge
+
+    U->>FE: submit verification code
+    FE->>API: POST /mfa/enrollments/{id}/verify
+    API->>M: verifyEnrollment(code)
+    M->>R: load pending enrollment atomically
+    alt invalid or expired
+        M-->>API: AUTH_MFA_INVALID_CODE / expired
+    else valid
+        M->>DB: BEGIN
+        M->>DB: create/activate MfaMethod
+        M->>DB: clear enrollment and reenrollment flags
+        M->>DB: COMMIT
+        M->>R: consume enrollment challenge
+        M->>A: mfa.enrollment.completed
+        M-->>API: completed, require continuation/fresh login
+    end

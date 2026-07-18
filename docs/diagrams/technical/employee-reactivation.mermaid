@@ -1,0 +1,26 @@
+sequenceDiagram
+    autonumber
+    participant D as Directory Service
+    participant K as Kafka/Event Bus
+    participant C as EmployeeLifecycleConsumer
+    participant P as ProvisioningApplicationService
+    participant DB as PostgreSQL
+    participant E as Email Service
+    participant A as Audit Platform
+
+    D->>K: employee.reactivated
+    K->>C: deliver event
+    C->>P: synchronizeEmployeeStatus(event)
+    P->>DB: BEGIN
+    P->>DB: lock user by employeeRef
+    P->>DB: revoke old pending invitations
+    P->>DB: invalidate/reset credential according to product policy
+    P->>DB: User -> INVITED; securityVersion++
+    P->>P: create new invitation token/hash
+    P->>DB: insert Invitation(PENDING)
+    P->>DB: COMMIT
+    P->>E: send new invitation
+    P->>A: employee.reactivated + invitation.created
+    C-->>K: ACK
+
+    Note over P,DB: This diagram applies the PRD default assumption: reactivation requires a new invitation and does not silently revive old credentials.

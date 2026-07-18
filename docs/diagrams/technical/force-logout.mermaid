@@ -1,0 +1,29 @@
+sequenceDiagram
+    autonumber
+    actor AD as Admin
+    participant FE as Admin Portal
+    participant API as AdminUserSecurityController
+    participant AZ as Authorization Domain
+    participant S as SessionApplicationService
+    participant DB as PostgreSQL
+    participant R as Redis
+    participant A as Audit Platform
+
+    AD->>FE: choose Force logout
+    FE->>API: POST /admin/users/{targetId}/force-logout
+    API->>AZ: authorize(access.user.force-logout, target)
+    alt denied
+        AZ-->>API: deny
+        API-->>FE: AUTH_PERMISSION_DENIED
+    else allowed
+        AZ-->>API: allow
+        API->>S: forceLogout(actor,target,reason)
+        S->>DB: BEGIN
+        S->>DB: lock target; securityVersion++
+        S->>DB: COMMIT
+        S->>R: atomically revoke all target sessions
+        R-->>S: revokedSessionCount
+        S->>A: force.logout.by.admin(actor,target,count,reason)
+        S-->>API: success
+        API-->>FE: target logged out
+    end

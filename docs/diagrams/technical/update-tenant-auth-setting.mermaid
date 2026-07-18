@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor AD as Admin
+    participant FE as Admin Portal
+    participant API as AuthSettingsController
+    participant AZ as Authorization Domain
+    participant S as AuthenticationSettingsService
+    participant DB as PostgreSQL
+    participant C as Settings Cache
+    participant A as Audit Platform
+
+    AD->>FE: update MFA, lockout, reset, or IP settings
+    FE->>API: PUT /authentication/settings
+    API->>AZ: authorize(access.authentication-settings.update)
+    alt denied
+        AZ-->>API: deny
+        API-->>FE: AUTH_PERMISSION_DENIED
+    else allowed
+        AZ-->>API: allow
+        API->>S: validate client-editable fields
+        alt hidden TTL/provider fields supplied
+            S-->>API: validation rejected
+            API-->>FE: field not exposed / bad request
+        else valid settings
+            S->>DB: update tenant settings with optimistic version
+            S->>C: invalidate tenant settings cache
+            S->>A: authentication.settings.updated(actor,before,after sanitized)
+            S-->>API: updated settings
+            API-->>FE: success
+        end
+    end
