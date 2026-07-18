@@ -1,0 +1,136 @@
+classDiagram
+    direction LR
+
+    class Tenant {
+        +string tenantCode
+        +string companyId
+        +TenantStatus status
+        +datetime createdAt
+    }
+
+    class User {
+        +uuid id
+        +string tenantCode
+        +uuid employeeRefId nullable
+        +string normalizedEmail
+        +string displayEmail
+        +UserType type
+        +UserStatus status
+        +CredentialStatus credentialStatus
+        +int securityVersion
+        +bool protectedRootAdmin
+        +bool mfaEnrollmentRequired
+        +bool mfaReenrollmentRequired
+        +datetime createdAt
+        +datetime updatedAt
+        +activate()
+        +lock()
+        +disable()
+        +archive()
+        +incrementSecurityVersion()
+    }
+
+    class EmployeeReference {
+        +uuid employeeId
+        +string tenantCode
+        +string employeeCode
+        +EmployeeStatus status
+        +string sourceVersion
+        +datetime synchronizedAt
+    }
+
+    class Credential {
+        +uuid id
+        +uuid userId
+        +string passwordHash
+        +PasswordAlgorithm algorithm
+        +CredentialStatus status
+        +datetime passwordChangedAt
+        +datetime createdAt
+        +setPassword(rawPassword)
+        +invalidate()
+    }
+
+    class ExternalIdentity {
+        +uuid id
+        +uuid userId
+        +IdentityProvider provider
+        +string providerSubject
+        +string providerEmail
+        +ExternalIdentityStatus status
+        +datetime linkedAt
+        +verifyUid(providerUid)
+    }
+
+    class Invitation {
+        +uuid id
+        +uuid userId
+        +string tokenHash
+        +InvitationStatus status
+        +datetime expiresAt
+        +uuid issuedBy nullable
+        +int version
+        +datetime sentAt
+        +datetime acceptedAt nullable
+        +datetime revokedAt nullable
+        +isUsable(now)
+        +accept()
+        +revoke()
+        +expire()
+    }
+
+    class MfaMethod {
+        +uuid id
+        +uuid userId
+        +MfaType type
+        +MfaStatus status
+        +bool primary
+        +string encryptedSecret nullable
+        +string encryptedEmail nullable
+        +string maskedDestination nullable
+        +datetime verifiedAt nullable
+        +datetime disabledAt nullable
+        +activate()
+        +disable()
+    }
+
+    class AuthenticationSettings {
+        +uuid id
+        +string tenantCode
+        +bool restrictedMfaEnabled
+        +bool needAdminResetPassword
+        +bool accountLockoutEnabled
+        +int maxFailedRetries
+        +bool ipRestrictionEnabled
+        +string[] allowedIpCidrs
+        +int version
+        +datetime updatedAt
+        +validateIp(ip)
+    }
+
+    class SecurityAuditRecord {
+        +uuid eventId
+        +string tenantCode
+        +string eventType
+        +uuid actorUserId nullable
+        +uuid targetUserId nullable
+        +string outcome
+        +string reasonCode nullable
+        +string sourceIp nullable
+        +map sanitizedMetadata
+        +datetime occurredAt
+    }
+
+    Tenant "1" --> "1" AuthenticationSettings : configures
+    Tenant "1" --> "many" User : owns
+    User "0..1" --> "1" EmployeeReference : derived from
+    User "1" --> "0..1" Credential : owns
+    User "1" --> "0..*" ExternalIdentity : maps
+    User "1" --> "0..*" Invitation : receives
+    User "1" --> "0..*" MfaMethod : enrolls
+    User "1" --> "0..*" SecurityAuditRecord : actor or target
+
+    note for User "Root admin has no EmployeeReference.\nEmployee users have a 1:1 employeeRefId.\nEvery query is tenant-scoped."
+    note for ExternalIdentity "Unique constraint: tenantCode + provider + providerSubject.\nFirebase UID mismatch is a critical hard-fail."
+    note for Invitation "Partial unique constraint: one PENDING invitation per user.\nOnly tokenHash is persisted."
+    note for SecurityAuditRecord "Never stores password, password hash, raw token, OTP, TOTP secret, Firebase token, or reset grant."

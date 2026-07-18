@@ -1,0 +1,90 @@
+classDiagram
+    direction TB
+
+    class UserAggregate {
+        +User user
+        +Credential credential
+        +ExternalIdentity[] identities
+        +MfaMethod[] mfaMethods
+        +Invitation[] invitations
+        +changePassword()
+        +acceptInvitation()
+        +resetMfa()
+        +synchronizeEmployeeStatus()
+        +lockAccount()
+    }
+
+    class UserRepository {
+        <<interface>>
+        +findById(tenantCode, userId)
+        +findByEmail(tenantCode, normalizedEmail)
+        +findByFirebaseUid(tenantCode, uid)
+        +findByEmployeeRef(tenantCode, employeeId)
+        +save(aggregate)
+        +lockForUpdate(userId)
+    }
+
+    class InvitationRepository {
+        <<interface>>
+        +findUsableForUpdate(userId, tokenHash)
+        +findPendingForUpdate(userId)
+        +revokePending(userId)
+        +save(invitation)
+    }
+
+    class SettingsRepository {
+        <<interface>>
+        +getByTenant(tenantCode)
+        +save(settings)
+    }
+
+    class SessionStore {
+        <<interface>>
+        +create(session)
+        +get(sessionId)
+        +revoke(sessionId)
+        +revokeAll(tenantCode, userId)
+        +refresh(sessionId)
+    }
+
+    class ChallengeStore {
+        <<interface>>
+        +put(challenge)
+        +getForUpdate(id)
+        +consume(id)
+    }
+
+    class FailureCounterStore {
+        <<interface>>
+        +incrementAtomic(key, failureType)
+        +getWeightedScore(key)
+        +reset(key)
+    }
+
+    class AuthorizationPort {
+        <<interface>>
+        +authorize(actor, permission, targetTenant)
+    }
+
+    class FirebaseIdentityPort {
+        <<interface>>
+        +provisionUser(email)
+        +verifyIdToken(token)
+    }
+
+    class EmailPort {
+        <<interface>>
+        +sendInvitation(payload)
+        +sendOtp(payload)
+        +sendSecurityNotification(payload)
+    }
+
+    class AuditPort {
+        <<interface>>
+        +append(event)
+    }
+
+    UserAggregate --> UserRepository
+    UserAggregate --> InvitationRepository
+    UserAggregate ..> SessionStore
+    UserAggregate ..> AuditPort

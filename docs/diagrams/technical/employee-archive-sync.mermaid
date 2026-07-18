@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    participant D as Directory Service
+    participant K as Kafka/Event Bus
+    participant C as EmployeeLifecycleConsumer
+    participant P as ProvisioningApplicationService
+    participant DB as PostgreSQL
+    participant R as Redis
+    participant A as Audit Platform
+
+    D->>K: employee.disabled or employee.archived
+    K->>C: deliver lifecycle event
+    C->>P: synchronizeEmployeeStatus(event)
+    P->>DB: BEGIN
+    P->>DB: SELECT user FOR UPDATE by employeeRef
+    P->>DB: User -> DISABLED or ARCHIVED
+    P->>DB: securityVersion++
+    opt archived
+        P->>DB: revoke PENDING invitations
+    end
+    P->>DB: record event idempotency
+    P->>DB: COMMIT
+    P->>R: revoke all sessions and temporary challenges
+    P->>A: user.status.synchronized
+    C-->>K: ACK

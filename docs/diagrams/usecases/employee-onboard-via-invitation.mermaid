@@ -1,0 +1,22 @@
+flowchart TD
+    A([Employee receives invitation email]) --> B[Open invitation link]
+    B --> C{Link valid?}
+    C -- No --> D[Show generic invalid-link message]
+    D --> E[Contact tenant administrator]
+    C -- Yes --> F[Show initial password form]
+    F --> G[Enter and confirm password]
+    G --> H{Password satisfies policy?}
+    H -- No --> I[Show password requirements]
+    I --> G
+    H -- Yes --> J[Submit password]
+    J --> K{Restricted MFA enabled?}
+    K -- No --> L[Invitation accepted and account activated]
+    K -- Yes --> M[Redirect to MFA enrollment]
+    M --> N[Choose TOTP or secondary email]
+    N --> O[Verify enrollment code]
+    O --> P{Verification successful?}
+    P -- No --> Q[Show invalid/expired code]
+    Q --> O
+    P -- Yes --> L
+    L --> R[Redirect to login]
+    R --> S([Onboarding complete])

@@ -1,0 +1,13 @@
+flowchart TD
+    A([Authenticated user]) --> B{User action}
+    B -- Click normal Logout --> C[Revoke current session only]
+    C --> D[Other devices remain signed in]
+    D --> E([Return to login])
+
+    B -- Change password --> F[Enter current and new password]
+    F --> G{Select Log out all devices?}
+    G -- No --> H[Update password and refresh current session]
+    H --> I([Continue on current device])
+    G -- Yes --> J[Revoke every session]
+    J --> K[Create fresh session for current device]
+    K --> I

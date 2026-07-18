@@ -1,0 +1,57 @@
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant FE as Web Frontend
+    participant FB as Firebase Client SDK
+    participant API as AuthController
+    participant L as LoginApplicationService
+    participant FBA as Firebase Admin SDK
+    participant DB as PostgreSQL
+    participant R as Redis
+    participant A as Audit Platform
+
+    U->>FE: choose SSO provider
+    FE->>FB: authenticate
+    FB-->>FE: Firebase ID token
+    FE->>API: POST /auth/login/firebase {idToken}
+    API->>L: loginWithFirebase(idToken, tenant, trustedIp)
+    L->>FBA: verify ID token signature and structure
+    alt Firebase unavailable or token invalid
+        FBA-->>L: error
+        L->>A: firebase.login.failed / dependency.unavailable
+        L-->>API: deny, suggest explicit password login fallback
+    else verified token
+        FBA-->>L: uid, email, email_verified
+        L->>DB: resolve exactly one identity by tenant + Firebase UID
+        alt no internal mapping
+            DB-->>L: none
+            L->>A: firebase.login.failed(reason=no_mapping)
+            L-->>API: reject, no auto-create or email-link
+        else duplicate mappings or stored UID conflict
+            DB-->>L: conflict
+            L->>A: firebase.uid.mismatch(critical)
+            L-->>API: AUTH_FIREBASE_IDENTITY_CONFLICT
+        else exact mapping
+            DB-->>L: user + credential + MFA methods + settings
+            L->>L: evaluate status, IP, lockout, MFA
+            alt account/security check fails
+                L->>A: firebase.login.failed(reason)
+                L-->>API: deny
+            else credential EMPTY
+                L->>R: create restricted password-setup session
+                L->>A: password.setup.required.via.firebase
+                L-->>API: restricted token + PASSWORD_SETUP_REQUIRED
+            else active MFA method
+                L->>R: create MFA challenge
+                L-->>API: AUTH_MFA_REQUIRED
+            else Restricted MFA and no method
+                L->>R: create restricted MFA enrollment session
+                L-->>API: MFA_ENROLLMENT_REQUIRED
+            else all gates satisfied
+                L->>R: create full session
+                L->>A: firebase.login.succeeded
+                L-->>API: full tokens
+            end
+        end
+    end
+    API-->>FE: result

@@ -1,0 +1,17 @@
+flowchart TD
+    A([Login attempt fails]) --> B{Identity exists and account countable?}
+    B -- No --> C[Apply IP/fingerprint rate limiting only]
+    C --> D[Return generic error]
+    B -- Yes --> E{Failure type}
+    E -- Wrong password --> F[Increment credential failure score]
+    E -- Wrong MFA --> G[Increment challenge attempts and global score]
+    E -- Disallowed IP --> H[Increment separately weighted IP score]
+    F --> I{Weighted threshold reached?}
+    G --> I
+    H --> I
+    I -- No --> D
+    I -- Yes --> J[Lock account]
+    J --> K[Increment securityVersion]
+    K --> L[Revoke all sessions]
+    L --> M[Notify/audit security event]
+    M --> N([Admin unlock required by default])

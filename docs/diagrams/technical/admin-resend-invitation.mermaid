@@ -1,0 +1,40 @@
+sequenceDiagram
+    autonumber
+    actor AD as Admin
+    participant FE as Admin Portal
+    participant API as InvitationController
+    participant AZ as Authorization Domain
+    participant S as InvitationApplicationService
+    participant DB as PostgreSQL
+    participant E as Email Service
+    participant A as Audit Platform
+
+    AD->>FE: click Resend invitation
+    FE->>API: POST /admin/users/{userId}/invitation/resend
+    API->>AZ: authorize(access.user.resend-invitation, target)
+    alt denied or cross-tenant
+        AZ-->>API: deny
+        API-->>FE: AUTH_PERMISSION_DENIED
+    else permitted
+        AZ-->>API: allow
+        API->>S: resendInvitation(actor, target)
+        S->>DB: BEGIN
+        S->>DB: SELECT target user FOR UPDATE
+        S->>DB: verify active employee/user and credential EMPTY
+        alt resend not allowed
+            S->>DB: ROLLBACK
+            S-->>API: AUTH_INVITATION_RESEND_NOT_ALLOWED
+        else allowed
+            S->>DB: SELECT current PENDING invitation FOR UPDATE
+            S->>DB: mark previous PENDING as REVOKED
+            S->>S: generate new raw token + hash
+            S->>DB: insert new Invitation(PENDING, version+1)
+            S->>DB: COMMIT
+            S->>E: send new invitation raw token
+            S->>A: invitation.resent(actor,target,version)
+            S-->>API: success
+            API-->>FE: invitation resent
+        end
+    end
+
+    Note over DB: Row lock + partial unique index ensures only one PENDING invitation survives concurrent resend requests.

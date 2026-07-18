@@ -1,0 +1,41 @@
+sequenceDiagram
+    autonumber
+    actor U as User Agent
+    participant GW as API Gateway
+    participant M as Authentication Middleware
+    participant R as Redis SessionStore
+    participant DB as PostgreSQL/User Security Cache
+    participant S as Target Service
+
+    U->>GW: request with access token/sessionId
+    GW->>M: forward trusted tenant/IP context
+    M->>M: verify JWT signature and extract sessionId
+    M->>R: get session(sessionId)
+    alt session missing/revoked/expired
+        R-->>M: not valid
+        M-->>GW: AUTH_SESSION_REVOKED/EXPIRED
+        GW-->>U: 401
+    else session exists
+        R-->>M: session with userId/securityVersion/type
+        M->>DB: get current user status and securityVersion
+        alt status not ACTIVE or version mismatch
+            DB-->>M: invalid security state
+            M->>R: revoke session
+            M-->>GW: AUTH_SECURITY_VERSION_MISMATCH / revoked
+            GW-->>U: 401
+        else valid
+            DB-->>M: valid
+            M->>M: enforce restricted-session endpoint allowlist
+            alt restricted session calls general HRMS endpoint
+                M-->>GW: AUTH_PERMISSION_DENIED / setup required
+                GW-->>U: 403
+            else endpoint allowed
+                opt remember-me session
+                    M->>R: atomically refresh idle expiry
+                end
+                M->>S: forward authenticated context
+                S-->>GW: response
+                GW-->>U: response
+            end
+        end
+    end

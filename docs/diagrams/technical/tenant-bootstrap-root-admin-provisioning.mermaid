@@ -1,0 +1,33 @@
+sequenceDiagram
+    autonumber
+    participant TP as Tenant Provisioning Service
+    participant K as Kafka/Event Bus
+    participant C as TenantProvisioningConsumer
+    participant P as ProvisioningApplicationService
+    participant DB as PostgreSQL
+    participant AZ as Authorization Domain
+    participant A as Audit Platform
+
+    TP->>K: tenant.provisioned(eventId, tenantCode, rootAdminEmail)
+    K->>C: deliver event
+    C->>DB: check idempotency(eventId)
+    alt already processed
+        DB-->>C: processed
+        C-->>K: ACK
+    else new event
+        C->>P: bootstrapRootAdmin(event)
+        P->>DB: BEGIN
+        P->>DB: SELECT root admin FOR UPDATE by tenant
+        alt root admin exists
+            P->>DB: record idempotency as completed
+            P->>DB: COMMIT
+        else no root admin
+            P->>DB: INSERT User(type=ROOT_ADMIN, protected=true)
+            P->>AZ: assign protected tenant-owner capability floor
+            AZ-->>P: assignment confirmed
+            P->>DB: record idempotency as completed
+            P->>DB: COMMIT
+            P->>A: root.admin.provisioned(sanitized metadata)
+        end
+        C-->>K: ACK
+    end

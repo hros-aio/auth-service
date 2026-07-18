@@ -1,0 +1,10 @@
+flowchart TD
+    A([Employee status changed in Directory]) --> B{New employee status}
+    B -- Disabled --> C[Access user becomes DISABLED]
+    B -- Archived/Terminated --> D[Access user becomes ARCHIVED]
+    C --> E[All sessions revoked]
+    D --> E
+    D --> F[Pending invitation revoked]
+    E --> G[User's next request is rejected]
+    F --> G
+    G --> H([User can no longer access HRMS])

@@ -1,0 +1,24 @@
+flowchart TD
+    A([User opens Login]) --> B[Choose Google/Microsoft SSO through Firebase]
+    B --> C[Complete provider authentication]
+    C --> D{Firebase token verified?}
+    D -- No --> E[Show SSO unavailable or invalid]
+    E --> F[Offer email/password login]
+    D -- Yes --> G{Firebase UID maps exactly to one user?}
+    G -- No --> H[Block login and show support guidance]
+    G -- Yes --> I{Account active and IP allowed?}
+    I -- No --> J[Show secure denial message]
+    I -- Yes --> K{Password configured?}
+    K -- No --> L[Create restricted setup session]
+    L --> M[Redirect to password setup]
+    M --> N[Create password]
+    N --> O{Restricted MFA enrollment required?}
+    O -- Yes --> P[Enroll and verify MFA]
+    O -- No --> Q[Require fresh/full login]
+    P --> Q
+    K -- Yes --> R{MFA challenge required?}
+    R -- Yes --> S[Complete MFA challenge]
+    R -- No --> T[Create full session]
+    S --> T
+    Q --> A
+    T --> U([Open HRMS dashboard])

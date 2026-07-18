@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant FE as Web Frontend
+    participant API as SessionController
+    participant S as SessionApplicationService
+    participant R as Redis
+    participant A as Audit Platform
+
+    U->>FE: click Logout
+    FE->>API: DELETE /auth/session/current
+    API->>S: logoutCurrent(sessionId)
+    S->>R: atomically delete session and remove from user index
+    alt session already absent
+        R-->>S: no-op
+    else session revoked
+        R-->>S: revoked
+    end
+    S->>A: logout.current.session
+    S-->>API: success
+    API-->>FE: clear client tokens
+    FE-->>U: redirect to login

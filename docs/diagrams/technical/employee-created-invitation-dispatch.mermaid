@@ -1,0 +1,59 @@
+sequenceDiagram
+    autonumber
+    participant D as Directory Service
+    participant K as Kafka/Event Bus
+    participant C as EmployeeLifecycleConsumer
+    participant P as ProvisioningApplicationService
+    participant DB as PostgreSQL
+    participant F as Firebase Admin SDK
+    participant E as Email Service
+    participant A as Audit Platform
+    participant DLQ as Dead Letter Queue
+
+    D->>K: employee-created(eventId, tenantCode, employeeId, email, status)
+    K->>C: deliver event
+    C->>DB: check idempotency(eventId, consumer)
+    alt duplicate event
+        DB-->>C: already completed
+        C-->>K: ACK
+    else first delivery
+        C->>P: provisionEmployeeUser(event)
+        P->>DB: BEGIN
+        P->>DB: find user by tenant + employeeRef FOR UPDATE
+        alt user already exists
+            P->>DB: mark event completed
+            P->>DB: COMMIT
+            C-->>K: ACK
+        else new user
+            P->>DB: INSERT User(status=PROVISIONING_PENDING or INVITED)
+            P->>DB: COMMIT
+            P->>F: create/get Firebase user by deterministic provisioning key
+            alt Firebase successful
+                F-->>P: firebaseUid
+                P->>DB: persist unique Firebase identity mapping
+                P->>A: firebase.user.provisioned
+                alt employee status ACTIVE
+                    P->>DB: transactionally revoke old pending invitation
+                    P->>P: generate raw token + tokenHash
+                    P->>DB: insert Invitation(PENDING, expiresAt=24h)
+                    P->>DB: update User(status=INVITED)
+                    P->>E: send invitation(userId, raw token)
+                    E-->>P: accepted for delivery
+                    P->>A: invitation.created + invitation.sent
+                else employee not ACTIVE
+                    P->>DB: synchronize non-active user status
+                end
+                P->>DB: mark event completed
+                C-->>K: ACK
+            else Firebase transient failure
+                F-->>P: timeout/unavailable
+                P->>DB: keep User(PROVISIONING_PENDING)
+                P->>A: firebase.provisioning.failed
+                C-->>K: NACK / retry with backoff
+            else repeated terminal failure
+                C->>DLQ: publish failed event and diagnostics
+                C-->>K: ACK original delivery
+            end
+        end
+    end
+
